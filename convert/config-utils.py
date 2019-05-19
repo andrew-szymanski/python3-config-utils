@@ -22,16 +22,44 @@ console.setFormatter(formatter)
 logging.getLogger(__name__).addHandler(console)
 logger = logging.getLogger(__name__)
 
-#                      **********************************************************
-#                      **** convert csv to json and vice versa
-#                      **********************************************************
+
+
+def read_into_dictionary(input_file):
+    """ read a file into dictionary
+    """
+    logger.debug("%s %s (%s)..." %  (LOG_INDENT, inspect.stack()[0][3], input_file))
+
+    input_file_format = (pathlib.Path(input_file).suffix)
+    ret_dict = {}
+    if input_file_format == '.csv':
+        logger.debug("%s opening file [%s]" % (LOG_INDENT,input_file))
+        reader = csv.reader(open(input_file, 'r'))
+        for row in reader:
+            # read in and strip of comments / blank lines etc..
+            variable_name = row[0].strip()
+            variable_value = row[1].strip()
+            if not variable_name:
+                continue
+            if variable_name.startswith('#') or variable_value.startswith('#'):
+                continue
+            logger.debug("%s %s=%s" % (LOG_INDENT,variable_name,variable_value))
+            # save in dictionary
+            ret_dict[variable_name] = variable_value
+        return ret_dict
+
+
+
+
 def convert(input_file, output_file):
-    """ publish json
+    """ convert files
     """
     logger.debug("%s %s (%s,%s)..." %  (LOG_INDENT, inspect.stack()[0][3], input_file, output_file))
 
-    input_file_format = (pathlib.Path(input_file).suffix)
-    output_file_format = (pathlib.Path(output_file).suffix)
+    #output_file_format = (pathlib.Path(output_file).suffix)
+
+    # read file into dictionary regardless of format
+    input_dict = read_into_dictionary(input_file)
+    print (input_dict)
 
 
 
@@ -43,9 +71,9 @@ def mainRun(opts, parser):
     logger.debug("%s starting..." % inspect.stack()[0][3])
 
     if opts.action == 'convert':
-        if not opts.input or not opts.output:
+        if not opts.input:
             parser.print_help()
-            sys.exit("ERROR: you must specify input and output files")
+            sys.exit("ERROR: you must specify input file")
         convert(opts.input, opts.output)
 
     logger.info("all done")
