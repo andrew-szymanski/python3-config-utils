@@ -29,9 +29,9 @@ def read_into_dictionary(input_file):
     """
     logger.debug("%s %s (%s)..." %  (LOG_INDENT, inspect.stack()[0][3], input_file))
 
-    input_file_format = (pathlib.Path(input_file).suffix)
+    input_file_suffix = (pathlib.Path(input_file).suffix)
     ret_dict = {}
-    if input_file_format == '.csv':
+    if input_file_suffix == '.csv':
         logger.debug("%s opening file [%s]" % (LOG_INDENT,input_file))
         reader = csv.reader(open(input_file, 'r'))
         for row in reader:
@@ -60,6 +60,28 @@ def convert(input_file, output_file):
     # read file into dictionary regardless of format
     input_dict = read_into_dictionary(input_file)
     logger.debug("%s %s" % (LOG_INDENT, input_dict))
+
+    # determine output file format
+    if output_file:
+        output_file_suffix = (pathlib.Path(output_file).suffix)
+    else:
+        # output file not specified
+        input_file_suffix = (pathlib.Path(input_file).suffix)
+        if input_file_suffix == '.csv':
+            output_file_suffix = '.json'
+        else:
+            output_file_suffix = '.csv'
+        # construct default filename
+        output_file = "%s%s" % ("ai-hammer.configuration",output_file_suffix)
+        logger.warning("output file not specified, defaulted to: [%s]" % output_file)
+
+    # TODO: check if file already exists
+    # TODO: write out json file
+    if output_file_suffix == '.json':
+        with open(output_file, 'w') as f:  # writing JSON object
+            json.dump(input_dict, f)
+
+    logger.info ("%s [%s] converted to [%s]" % (LOG_INDENT, input_file, output_file) )
 
 
 
