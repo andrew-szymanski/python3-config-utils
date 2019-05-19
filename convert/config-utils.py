@@ -59,7 +59,7 @@ def convert(input_file, output_file):
 
     # read file into dictionary regardless of format
     input_dict = read_into_dictionary(input_file)
-    logger.debug(input_dict)
+    logger.debug("%s %s" % (LOG_INDENT, input_dict))
 
 
 
